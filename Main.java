@@ -1,9 +1,11 @@
+import java.sql.Array;
+import java.sql.SQLOutput;
 import java.util.*;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
-        ArrayList<String> players = new ArrayList<>();
+        ArrayList<String> playersNames = new ArrayList<>();
         ArrayList<String> words = new ArrayList<>();
         ArrayList<String> definitions = new ArrayList<>();
         //filling words & definitons
@@ -21,39 +23,114 @@ public class Main {
         definitions.add("A country in Western Europe, home to medieval towns, alpine villages and Mediterranean beaches, known for its wines and gourmet cuisine.");
         words.add("Amber");
         definitions.add("Hard translucent fossilized resin originating from extinct coniferous trees of the Tertiary period, typically yellowish in colour. It has been used in jewellery since antiquity.");
-        words.add("Pizza");
-        definitions.add("A dish of Italian origin, consisting of a flat round base of dough baked with a topping of tomatoes and cheese, typically with added meat, fish, or vegetables.");
+        words.add("Hotdog");
+        definitions.add("A dish consisting of a grilled or steamed sausage served in the slit of a partially sliced bun.");
         words.add("Manager");
         definitions.add("A person responsible for controlling or administering an organization or group of staff.");
         words.add("Hyperbole");
         definitions.add("Exaggerated statements or claims not meant to be taken literally.");
 
-
         System.out.println("How many players will be?");
-        int NumberOfPlayers = scanner.nextInt();
-        for (int i = 0; i < NumberOfPlayers; i++) {
-            System.out.println("Enter player's name: ");
-            players.add(scanner.next());
+        int quantityOfPlayers = scanner.nextInt();
+
+        for (int i = 0; i < quantityOfPlayers; i++) {
+            System.out.println("Enter player's name:");
+            playersNames.add(scanner.next());
         }
-        int i = 0;
-        ArrayList<String> PlayersTurn = new ArrayList<>();
-        while(i != players.size()) {
-            int randomNumber = random.nextInt(0, players.size());
-            PlayersTurn.add(players.get(randomNumber));
-            i++;
+
+        Collections.shuffle(playersNames);
+
+        boolean isGameOver = false;
+
+        int randomWordsIndex = random.nextInt(0, words.size());
+        int[] score = new int[quantityOfPlayers];
+        int order = 0;
+        ArrayList<String> wrongGuessedLetters = new ArrayList<>();
+        int guessedLetters = 0;
+        do{
+            System.out.println("Guess the word: " +
+                    "\n" + definitions.get(randomWordsIndex));
+            System.out.println(playersNames.get(order) + "'s turn!");
+            boolean isPlayerGuessIncorrect = false;
+            while(!isPlayerGuessIncorrect){
+                String playersGuess = scanner.next();
+                if (score[order] >= words.get(randomWordsIndex).length()*60){
+                    System.out.println(playersNames.get(order) + " has reached maximum possible points and can win the game! So other players must guess the word!");
+                    playersNames.remove(order);
+                    if (order == playersNames.size() - 1) {
+                        order = 0;
+                    }
+                    order++;
+                    System.out.println(playersNames.get(order) + "'s turn to guess the word!");
+
+                    if (playersGuess.equals(words.get(randomWordsIndex))){
+                        score[order]+=words.get(randomWordsIndex).length()*100;
+                    }else{
+                        playersNames.remove(order);
+                        order++;
+                        if (order == playersNames.size() - 1) {
+                            order = 0;
+                        }
+                        System.out.println(playersNames.get(order) + "'s turn to guess the word!");
+
+                    }
+
+                }
+                if (playersGuess.length()>1 && playersGuess.equals(words.get(randomWordsIndex).toLowerCase())){
+                    score[order]+=words.get(randomWordsIndex).length()*100;
+                    isPlayerGuessIncorrect = true;
+                    isGameOver = true;
+                }else {
+                    if (playersGuess.length()>1) {
+                        System.out.println("The player " + playersNames.get(order) + " is eliminated because he guessed the word incorrectly!");
+                        playersNames.remove(order);
+                        order++;
+                        System.out.println(playersNames.get(order) + "'s turn!");
+                        if (order == playersNames.size() - 1) {
+                            order = 0;
+                        }
+                    }else {
+                        if (words.get(randomWordsIndex).toLowerCase().contains(playersGuess)) {
+                            score[order] += 100;
+                            System.out.println("Correct! Word contains this letter!");
+                            guessedLetters++;
+                            if (guessedLetters == words.get(randomWordsIndex).length()) {
+                                isPlayerGuessIncorrect = true;
+                                isGameOver = true;
+                            }
+
+                        } else {
+                            if (!wrongGuessedLetters.contains(playersGuess)) {
+                                System.out.println("Incorrect! Word does not contain this letter!");
+                                wrongGuessedLetters.add(playersGuess);
+                                isPlayerGuessIncorrect = true;
+                                order++;
+                                if (order == playersNames.size()) {
+                                    order = 0;
+                                }
+                            } else {
+                                System.out.println("This letter has already been guessed! Try another one!");
+                            }
+
+
+                        }
+                    }
+                }
+
+            }
+
+
+
+        }while(!isGameOver);
+        ArrayList<Integer> scoreAsArrayList = new ArrayList<>();
+        for (int v :
+             score) {
+            scoreAsArrayList.add(v);
         }
-        boolean IsGameFinished = false;
-
-        System.out.println("Guess the word:" + "\n" +
-                definitions.get((int) (Math.random()*definitions.size())));
+        String winner = playersNames.get(scoreAsArrayList.indexOf(Collections.max(scoreAsArrayList)));
+        System.out.println("The winner is " + winner + "!");
 
 
-        while(!IsGameFinished){
-            System.out.println(PlayersTurn.get(0) + "'s " + "turn!");
-
-
-            IsGameFinished = true;
-        }
 
 
 
@@ -62,4 +139,6 @@ public class Main {
 
 
     }
+
+
 }
