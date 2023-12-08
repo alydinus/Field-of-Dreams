@@ -30,13 +30,13 @@ public class Main {
         definitions.add("Exaggerated statements or claims not meant to be taken literally.");
 
 
-        System.out.println("How many players will be?");
+        System.out.println("         How many players will be?");
         int quantityOfPlayers = scanner.nextInt();
 
         boolean isGameFinished = false;
         int randomWordsIndex = random.nextInt(0, words.size());
         for (int i = 0; i < quantityOfPlayers; i++) {
-            System.out.println("Enter name: ");
+            System.out.println("         Enter name: ");
 
             playersNames.add(scanner.next());
         }
@@ -44,8 +44,8 @@ public class Main {
         int[] score = new int[playersNames.size()];
 
         Collections.shuffle(playersNames);
-
         ArrayList<String> result = new ArrayList<>(playersNames);
+        ArrayList<String> correctlyGuessedLetters = new ArrayList<>();
         HashSet<String> wrongGuessedLetters = new HashSet<>();
         ArrayList<String> guessingWord = new ArrayList<>(List.of(words.get(randomWordsIndex).toLowerCase().split("")));
         int order = 0;
@@ -54,42 +54,55 @@ public class Main {
             boolean isPlayersGuessIncorrect = false;
             while (!isPlayersGuessIncorrect) {
                 if (!result.get(order).equals("winner") && !result.get(order).equals("lost") && !guessingWord.isEmpty()) {
-                    System.out.println("Guess the word!" + "\n" + definitions.get(randomWordsIndex));
-                    System.out.println(playersNames.get(order) + "'s turn!");
+                    System.out.println("                                                 Guess the word!" +
+                            "\n" + "         "  + definitions.get(randomWordsIndex));
+                    if (!correctlyGuessedLetters.isEmpty()){
+                        System.out.println("               GUESSED LETTERS" + "\n" +
+                                "-------------------------------------");
+                        for (String s:
+                                correctlyGuessedLetters) {
+                            System.out.print( "   " + s.toUpperCase() + " ");
+
+                        }
+                        System.out.println( );
+                        System.out.println("-------------------------------------");
+                    }
                     String playersGuess = scanner.next();
+
                     if (playersGuess.length() > 1 && !didSomePlayerReachedEnoughPointsToFinish) {
                         if (playersGuess.equals(words.get(randomWordsIndex).toLowerCase())) {
                             System.out.println(playersNames.get(order) + " won the game!");
                             isPlayersGuessIncorrect = true;
                             isGameFinished = true;
                         } else {
-                            System.out.println(playersNames.get(order) + " is eliminated, because he guessed word incorrectly!");
+                            System.out.println("         " + playersNames.get(order) + " is eliminated, because he guessed word incorrectly!" + "\n");
                             result.set(order, "lost");
                             order++;
                         }
                     } else if (playersGuess.length() == 1 && !didSomePlayerReachedEnoughPointsToFinish) {
                         if (guessingWord.contains(playersGuess)) {
-                            System.out.println("Correct! Word contains this letter!");
+                            System.out.println("         Correct! Word contains this letter!");
+                            correctlyGuessedLetters.add(playersGuess);
                             guessingWord.remove(playersGuess);
                             score[order] += 100;
                             if (score[order] >= words.get(randomWordsIndex).length() * 50) {
-                                System.out.println(playersNames.get(order) + " approached enough points to finish the game! Other players must guess the word!");
+                                System.out.println("         " + playersNames.get(order).toUpperCase() + " approached enough points to finish the game! Other players must guess the word!");
                                 didSomePlayerReachedEnoughPointsToFinish = true;
                                 result.set(order, "winner");
                                 order++;
                             }
                         } else if (wrongGuessedLetters.contains(playersGuess)) {
-                            System.out.println("This letter has already been guessed! Try something else!");
+                            System.out.println("         This letter has already been guessed! Try something else!");
                         } else {
-                            System.out.println("Incorrect! Word does not contain this letter!");
+                            System.out.println("         Incorrect! Word does not contain this letter!");
                             wrongGuessedLetters.add(playersGuess);
                             order++;
                         }
                     } else if (didSomePlayerReachedEnoughPointsToFinish) {
                         if (!result.get(order).equals("winner") && !result.get(order).equals("lost") && playersGuess.length() == 1) {
-                            System.out.println("You must guess the full word! Try again!");
+                            System.out.println("         You must guess the full word! Try again!");
                         } else if (!result.get(order).equals("winner") && !result.get(order).equals("lost") && playersGuess.length() > 1 && !playersGuess.equals(words.get(randomWordsIndex).toLowerCase())) {
-                            System.out.println(playersNames.get(order) + " is eliminated, because he guessed word incorrectly!");
+                            System.out.println("         "  + playersNames.get(order) + " is eliminated, because he guessed word incorrectly!");
                             result.set(order, "lost");
                             order++;
                         } else if (!result.get(order).equals("winner") && !result.get(order).equals("lost") && playersGuess.length() > 1 && playersGuess.equals(words.get(randomWordsIndex).toLowerCase())) {
